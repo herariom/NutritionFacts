@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>Results</title>
+</head>
+<body>
+<div style="clear: center;">
+    <div id="results" style="float: left;">
+        <h1>Calories of: {{productName}}</h1>
+        <p id="calories">Calories:</p>
+        <p id="fat">Fat:</p>
+        <p id="carbohydrates">Carbohydrates:</p>
+        <p id="protein">Protein:</p>
+        <script>
+            var message = JSON.parse('{{ message | tojson | safe}}');
+            document.getElementById('calories').innerHTML += " " + message.Calories
+            document.getElementById('fat').innerHTML += " " + message.Fat;
+            document.getElementById('carbohydrates').innerHTML += " " + message.Carbohydrates;
+            document.getElementById('protein').innerHTML += " " + message.Protein;
+        </script>
+    </div>
+    <img src="static/{{ imgDirectory }}" class="product-image" alt="Test" width="20%" height="auto">
+</div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+TESSERACT_PATH = r"YOUR_FILE_PATH"
+MYSQL_URI = 'mysql+pymysql://USER:PASSWORD@127.0.0.1:3306/pymysql'
+PREPROCESSOR = "thresh"
+UPLOAD_FOLDER = "PATH_TO_UPLOAD_FOLDER"
+ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']

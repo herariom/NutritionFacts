@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>Search Results</title>
+</head>
+<body>
+<div>
+    <div id="results">
+        <h1>Results for: {{ productName }}</h1>
+
+        {% for i in data %}
+        <table class="center-middle">
+            <tr><td>Name: {{ i.name }}</td></tr>
+            <tr><td>Calories: {{ i.facts['Calories'] }} Fat: {{ i.facts['Fat'] }} Carbohydrates: {{ i.facts['Carbohydrates'] }} Protein: {{ i.facts['Protein'] }}</td></tr>
+            <tr><td><img src="static/{{ i.img_path }}" class="product-image" alt="Test" width="20%" height="auto"></td></tr>
+        </table>
+        <br>
+        <br>
+        {% endfor %}
+
+    </div>
+</div>
+</body>
+</html>
