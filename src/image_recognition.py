@@ -13,26 +13,25 @@ def get_text(imagepath, preprocess):
     # Load image and convert to grayscale
     image = cv2.imread(imagepath)
 
+    image = image_resize(image, 2048, 2048)
+
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     if preprocess == "thresh":
-        gray = cv2.threshold(gray, 0, 255,
-                             cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-
+        th, gray = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     elif preprocess == "blur":
         gray = cv2.medianBlur(gray, 3)
 
     # Write grayscale image to disk
 
     filename = "{}.png".format(os.getpid())
-    path = "C:\\Users\\Logan\\PycharmProjects\\PySelenium\\src\\static"
+    path = config.UPLOAD_FOLDER
     cv2.imwrite(os.path.join(path, filename), gray)
-
+    
     # Load the image, get the text, then delete temp image
+    image = Image.open(os.path.join(path, filename))
 
-    text = pytesseract.image_to_string(Image.open(os.path.join(path, filename)))
-
-    os.remove(os.path.join(path, filename))
+    text = pytesseract.image_to_string(image)
 
 
     # DEBUGGING #
@@ -43,33 +42,16 @@ def get_text(imagepath, preprocess):
     return text
 
 
-def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
-    # initialize the dimensions of the image to be resized and
-    # grab the image size
-    dim = None
-    (h, w) = image.shape[:2]
+def image_resize(img, max_width, max_height):
+    height, width = img.shape[:2]
 
-    # if both the width and height are None, then return the
-    # original image
-    if width is None and height is None:
-        return image
+    # only shrink if img is bigger than required
+    if max_height < height or max_width < width:
+        # get scaling factor
+        scaling_factor = max_height / float(height)
+        if max_width / float(width) < scaling_factor:
+            scaling_factor = max_width / float(width)
+        # resize image
+        img = cv2.resize(img, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
 
-    # check to see if the width is None
-    if width is None:
-        # calculate the ratio of the height and construct the
-        # dimensions
-        r = height / float(h)
-        dim = (int(w * r), height)
-
-    # otherwise, the height is None
-    else:
-        # calculate the ratio of the width and construct the
-        # dimensions
-        r = width / float(w)
-        dim = (width, int(h * r))
-
-    # resize the image
-    resized = cv2.resize(image, dim, interpolation = inter)
-
-    # return the resized image
-    return resized
+    return img

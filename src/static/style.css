@@ -16,6 +16,10 @@ display: inline-block;
     background: rgba(255,255,255,0.9);
 }
 
+img {
+    image-orientation: from-image;
+}
+
 .product-image {
     vertical-align: middle;
     padding-left: 2em;

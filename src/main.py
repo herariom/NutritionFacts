@@ -47,6 +47,7 @@ def get_data():
             temp_prod.facts['fat'] = response.fat
             temp_prod.facts['carbohydrates'] = response.carbohydrates
             temp_prod.facts['protein'] = response.protein
+
             products.append(temp_prod)
 
         result = ""
@@ -82,10 +83,21 @@ def upload_file():
                 product = Product(new_name, os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
                 text = image_recognition.get_text(product.img_path, config.PREPROCESSOR)
+
+                if text is None or text == '':
+                    os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
+                    return render_template('error.html', error="Unable to process the nutrition facts!")
+
                 n = NutritionFacts()
+
                 product.facts = n.process_text(text)
 
                 facts = product.facts
+
+                if facts['Calories'] < 0 or facts['Carbohydrates'] < 0 or facts['Protein'] < 0:
+                    os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
+                    return render_template('error.html', error="Unable to correctly parse image data,"
+                                                               " please upload a higher quality image")
 
                 # Add new image to database
 
@@ -98,7 +110,6 @@ def upload_file():
                 return render_template('results.html', message=facts, imgDirectory=new_name,
                                        productName=request.form['product_name'])
             else:
-
                 return render_template('error.html', error="File already exists")
 
 

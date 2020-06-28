@@ -16,12 +16,16 @@ class DatabaseHandler:
         self.db.session.flush()
 
     def get_nutrition_db(self, product_name: str):
-        return self.get_models(product_data, {'product_name': product_name})
+        return self.get_models(product_data, product_name)
 
     def get_models(self, model, db_filter):
         db_query = self.db.session.query(model)
-        for attribute, value in db_filter.items():
-            db_query = db_query.filter(getattr(model, attribute) == value)
+        db_query = db_query.filter(model.product_name == db_filter)
+
+        if db_query.count() < 1:
+            db_query = self.db.session.query(model)
+            db_filter = "%{}%".format(db_filter)
+            db_query = db_query.filter(model.product_name.like(db_filter))
         return db_query.all()
 
 

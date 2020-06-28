@@ -1,7 +1,3 @@
-import image_recognition
-import nutrition_facts
-
-
 class Product:
     name: str
     img_path: str
