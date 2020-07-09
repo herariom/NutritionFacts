@@ -1,5 +1,10 @@
-TESSERACT_PATH = r"YOUR_FILE_PATH"
-MYSQL_URI = 'mysql+pymysql://USER:PASSWORD@127.0.0.1:3306/pymysql'
-PREPROCESSOR = "thresh"
-UPLOAD_FOLDER = "PATH_TO_UPLOAD_FOLDER"
-ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
+import configparser
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+TESSERACT_PATH = config['DEFAULT']['TesseractPath']
+MYSQL_URI = config['DEFAULT']['DatabaseURI']
+PREPROCESSOR = config['DEFAULT']['Preprocessor']
+UPLOAD_FOLDER = config['DEFAULT']['UploadFolder']
+ALLOWED_EXTENSIONS = config['DEFAULT']['AllowedExtensions'].split(",")
