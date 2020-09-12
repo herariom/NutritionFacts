@@ -1,7 +1,5 @@
-# import the necessary packages
 from src import image_recognition
 from nutrition_facts import NutritionFacts
-import re
 import os
 import database
 import config
@@ -18,13 +16,12 @@ app = Flask(__name__)
 app.debug = False
 
 app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
-
 app.config['SQLALCHEMY_DATABASE_URI'] = config.MYSQL_URI
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 90
 
 db_handler = database.DatabaseHandler(app)
 
-
+# Determines if a file's extension is allowed
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in config.ALLOWED_EXTENSIONS
