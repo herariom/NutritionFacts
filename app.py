@@ -16,7 +16,8 @@ app = Flask(__name__)
 app.debug = False
 
 app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
-app.config['SQLALCHEMY_DATABASE_URI'] = config.MYSQL_URI
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
+
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 90
 
 db_handler = database.DatabaseHandler(app)
