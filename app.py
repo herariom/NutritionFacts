@@ -1,4 +1,4 @@
-from src import image_recognition
+import image_recognition
 from nutrition_facts import NutritionFacts
 import os
 import database
