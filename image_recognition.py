@@ -25,7 +25,7 @@ def get_text(imagepath, preprocess):
     # Write grayscale image to disk
 
     filename = "{}.png".format(os.getpid())
-    path = config.UPLOAD_FOLDER
+    path = os.path.join(os.path.dirname(__file__) + "/" + config.UPLOAD_FOLDER)
     cv2.imwrite(os.path.join(path, filename), gray)
     
     # Load the image, get the text, then delete temp image
