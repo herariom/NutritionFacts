@@ -8,7 +8,7 @@ import config
 def get_text(imagepath, preprocess):
 
     # Set path for Tesseract
-    pytesseract.pytesseract.tesseract_cmd = config.TESSERACT_PATH
+    pytesseract.pytesseract.tesseract_cmd = os.environ['TESSDATA_PREFIX']
 
     # Load image and convert to grayscale
     image = cv2.imread(imagepath)
