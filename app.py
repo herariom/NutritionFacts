@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 app.debug = False
 
-app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__) + "/" + config.UPLOAD_FOLDER)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
 
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 90
@@ -76,14 +76,14 @@ def upload_file():
                 while os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], new_name)):
                     new_name = str(uuid.uuid4()) + filename[(filename.index('.')):]
 
-                #file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_name))
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
                 product = Product(new_name, os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
                 text = image_recognition.get_text(product.img_path, config.PREPROCESSOR)
 
                 if text is None or text == '':
-                    #os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
+                    os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
                     return render_template('error.html', error="Unable to process the nutrition facts!")
 
                 n = NutritionFacts()
@@ -93,7 +93,7 @@ def upload_file():
                 facts = product.facts
 
                 if facts['Calories'] < 0 or facts['Carbohydrates'] < 0 or facts['Protein'] < 0:
-                    #os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
+                    os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
                     return render_template('error.html', error="Unable to correctly parse image data,"
                                                                " please upload a higher quality image")
 
