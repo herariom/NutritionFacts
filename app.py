@@ -8,12 +8,16 @@ from flask import flash, request, redirect
 from flask import Flask
 from werkzeug.utils import secure_filename
 from product import Product
+from s3_file import upload_file, download_file
+import boto3
 
 import uuid
 
 app = Flask(__name__)
 
 app.debug = False
+
+BUCKET = os.environ['S3_BUCKET']
 
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__) + "/" + config.UPLOAD_FOLDER)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
@@ -51,9 +55,8 @@ def get_data():
         result = ""
         for prod in products:
             result = result + str(prod) + "\n"
-        return render_template('searchlist.html', data=products, productName=request.args.get('product_name'))
+        return render_template('searchlist.html', data=products, resource=request.args.get('product_name'))
     return render_template('error.html', error="Problem finding product")
-
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -77,6 +80,16 @@ def upload_file():
                     new_name = str(uuid.uuid4()) + filename[(filename.index('.')):]
 
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_name))
+
+                # TODO: Fix this check as it's a bit of a hack
+                total_size = 0
+                bucket = boto3.resource('s3').Bucket(BUCKET)
+                for object in bucket.objects.all():
+                    total_size += object.size
+
+                if (total_size < 1000):
+                    # Upload file to S3 bucket
+                    upload_file(os.path.join(app.config['UPLOAD_FOLDER'], new_name), BUCKET)
 
                 product = Product(new_name, os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
@@ -110,6 +123,16 @@ def upload_file():
             else:
                 return render_template('error.html', error="File already exists")
 
+
+@app.route('/download/<resource>')
+def download_image(resource):
+    """ resource: name of the file to download"""
+    s3 = boto3.client('s3',
+                      aws_access_key_id=os.environ['S3_ACCESS_KEY'],
+                      aws_secret_access_key=os.environ['S3_SECRET_KEY'])
+
+    url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': resource}, ExpiresIn=100)
+    return redirect(url, code=302)
 
 if __name__ == "__main__":
     # Generate session key
