@@ -21,7 +21,7 @@
             document.getElementById('protein').innerHTML += " " + message.Protein;
         </script>
     </div>
-    <img src="{{ url_for('app.download_image', resource=resource) }}" class="product-image" alt="Test" width="20%" height="auto">
+    <img src="{{ url_for('download_image', resource=resource) }}" class="product-image" alt="Test" width="20%" height="auto">
 </div>
 </body>
 </html>

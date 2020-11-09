@@ -52,6 +52,8 @@ def get_data():
 
             products.append(temp_prod)
 
+        print(request.args.get('product_name'))
+
         result = ""
         for prod in products:
             result = result + str(prod) + "\n"
@@ -120,6 +122,8 @@ def upload_file():
 @app.route('/download/<resource>')
 def download_image(resource):
     """ resource: name of the file to download"""
+
+    print("download_image called")
     s3 = boto3.client('s3',
                       aws_access_key_id=os.environ['S3_ACCESS_KEY'],
                       aws_secret_access_key=os.environ['S3_SECRET_KEY'])
