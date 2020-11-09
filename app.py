@@ -81,15 +81,8 @@ def upload_file():
 
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
-                # TODO: Fix this check as it's a bit of a hack
-                total_size = 0
-                bucket = boto3.resource('s3').Bucket(BUCKET)
-                for object in bucket.objects.all():
-                    total_size += object.size
-
-                if (total_size < 1000):
-                    # Upload file to S3 bucket
-                    upload_file(os.path.join(app.config['UPLOAD_FOLDER'], new_name), BUCKET)
+                # Upload file to S3 bucket
+                upload_file(os.path.join(app.config['UPLOAD_FOLDER'], new_name), BUCKET)
 
                 product = Product(new_name, os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
