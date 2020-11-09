@@ -57,7 +57,14 @@ def get_data():
         result = ""
         for prod in products:
             result = result + str(prod) + "\n"
-        return render_template('searchlist.html', data=products, resource=request.args.get('product_name'))
+
+        s3 = boto3.client('s3',
+                          aws_access_key_id=os.environ['S3_ACCESS_KEY'],
+                          aws_secret_access_key=os.environ['S3_SECRET_KEY'])
+
+        url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': response.file_name}, ExpiresIn=100)
+
+        return render_template('searchlist.html', data=products, resource=url)
     return render_template('error.html', error="Problem finding product")
 
 @app.route('/upload', methods=['GET', 'POST'])
