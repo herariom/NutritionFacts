@@ -82,7 +82,7 @@ def upload_file():
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
                 # Upload file to S3 bucket
-                s3_upload_file(os.path.join(app.config['UPLOAD_FOLDER'], new_name), BUCKET)
+                s3_upload_file(os.path.join(app.config['UPLOAD_FOLDER'], new_name), BUCKET, new_name)
 
                 product = Product(new_name, os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
