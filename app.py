@@ -8,7 +8,7 @@ from flask import flash, request, redirect
 from flask import Flask
 from werkzeug.utils import secure_filename
 from product import Product
-from s3_file import upload_file, download_file
+from s3_file import s3_upload_file
 import boto3
 
 import uuid
@@ -82,7 +82,7 @@ def upload_file():
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
                 # Upload file to S3 bucket
-                upload_file(os.path.join(app.config['UPLOAD_FOLDER'], new_name), BUCKET)
+                s3_upload_file(os.path.join(app.config['UPLOAD_FOLDER'], new_name), BUCKET)
 
                 product = Product(new_name, os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
