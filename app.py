@@ -52,7 +52,6 @@ def get_data():
 
             products.append(temp_prod)
 
-        print(request.args.get('product_name'))
 
         result = ""
         for prod in products:
@@ -62,7 +61,13 @@ def get_data():
                           aws_access_key_id=os.environ['S3_ACCESS_KEY'],
                           aws_secret_access_key=os.environ['S3_SECRET_KEY'])
 
+        print("PRODUCT NAME: " + request.args.get('product_name'))
+
+        print("FILENAME: " + response.file_name)
+
         url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': response.file_name}, ExpiresIn=100)
+
+        print("URL: " + url)
 
         return render_template('searchlist.html', data=products, resource=url)
     return render_template('error.html', error="Problem finding product")
