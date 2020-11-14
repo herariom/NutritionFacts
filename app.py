@@ -40,6 +40,7 @@ def start():
 @app.route('/facts', methods=['GET', 'POST'])
 def get_data():
     if request.method == 'GET':
+        print("Test")
         product = request.args.get('product_name')
         responses = db_handler.get_nutrition_db(str(product))
         products = []
@@ -57,11 +58,11 @@ def get_data():
         for prod in products:
             result = result + str(prod) + "\n"
 
+        print("BEFORE S3")
+
         s3 = boto3.client('s3',
                           aws_access_key_id=os.environ['S3_ACCESS_KEY'],
                           aws_secret_access_key=os.environ['S3_SECRET_KEY'])
-
-        print("PRODUCT NAME: " + request.args.get('product_name'))
 
         print("FILENAME: " + response.file_name)
 
