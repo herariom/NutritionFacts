@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 from product import Product
 from s3_file import s3_upload_file
 import boto3
+from botocore.client import Config
 
 import uuid
 
@@ -61,8 +62,10 @@ def get_data():
         print("BEFORE S3")
 
         s3 = boto3.client('s3',
-                          aws_access_key_id=os.environ['S3_ACCESS_KEY'],
-                          aws_secret_access_key=os.environ['S3_SECRET_KEY'])
+                             aws_access_key_id=os.environ['S3_ACCESS_KEY'],
+                             aws_secret_access_key=os.environ['S3_SECRET_KEY'],
+                             config=Config(signature_version='s3v4'),
+                             region_name='us-east-2')
 
         print("FILENAME: " + response.file_name)
 
@@ -138,8 +141,10 @@ def download_image(resource):
 
     print("download_image called")
     s3 = boto3.client('s3',
-                      aws_access_key_id=os.environ['S3_ACCESS_KEY'],
-                      aws_secret_access_key=os.environ['S3_SECRET_KEY'])
+                             aws_access_key_id=os.environ['S3_ACCESS_KEY'],
+                             aws_secret_access_key=os.environ['S3_SECRET_KEY'],
+                             config=Config(signature_version='s3v4'),
+                             region_name='us-east-2')
 
     url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': resource}, ExpiresIn=100)
     return redirect(url, code=302)
