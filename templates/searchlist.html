@@ -14,7 +14,7 @@
         <table class="center-middle">
             <tr><td>Name: {{ i.name }}</td></tr>
             <tr><td>Calories: {{ i.facts['Calories'] }} Fat: {{ i.facts['Fat'] }} Carbohydrates: {{ i.facts['Carbohydrates'] }} Protein: {{ i.facts['Protein'] }}</td></tr>
-            <tr><td><img src="{{ resource }}" class="product-image" alt="Test" width="20%" height="auto"></td></tr>
+            <tr><td><img src="static/uploads/{{ i.img_path }}" class="product-image" alt="Test" width="20%" height="auto"></td></tr>
         </table>
         <br>
         <br>
