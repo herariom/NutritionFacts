@@ -129,7 +129,18 @@ def upload_file():
 
                 db_handler.add_model(n_facts)
 
-                return render_template('results.html', message=facts, imgDirectory=new_name,
+                s3 = boto3.client('s3',
+                                  aws_access_key_id=os.environ['S3_ACCESS_KEY'],
+                                  aws_secret_access_key=os.environ['S3_SECRET_KEY'],
+                                  config=Config(signature_version='s3v4'),
+                                  region_name='us-east-2')
+
+                url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': new_name},
+                                                ExpiresIn=100)
+
+                print("URL: " + url)
+
+                return render_template('results.html', message=facts, imgDirectory=url,
                                        productName=request.form['product_name'])
             else:
                 return render_template('error.html', error="File already exists")
