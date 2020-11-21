@@ -3,7 +3,7 @@ from nutrition_facts import NutritionFacts
 import os
 import database
 import config
-from flask import render_template
+from flask import render_template, url_for
 from flask import flash, request, redirect
 from flask import Flask
 from werkzeug.utils import secure_filename
@@ -32,6 +32,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 90
 
 db_handler = database.DatabaseHandler(app)
+
+
+@app.route('/favicon.ico')
+def icon():
+    return redirect(url_for('static', filename='favicon.ico'), code=302)
 
 
 # Determines if a file's extension is allowed
