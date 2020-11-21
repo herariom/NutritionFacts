@@ -19,7 +19,7 @@ app = Flask(__name__)
 
 app.debug = False
 
-app.config['MAX_CONTENT_LENGTH'] = config.MAX_CONTENT_LENGTH
+app.config['MAX_CONTENT_LENGTH'] = int(config.MAX_CONTENT_LENGTH)
 
 BUCKET = os.environ['S3_BUCKET']
 
