@@ -54,7 +54,9 @@
     <h1>Search Products</h1>
     <form action='facts' class="form-inline justify-content-center" method="GET" enctype="multipart/form-data">
       <div class="form-group mb-2">
-          <input type='text' name='product_name'>
+
+        <label class="filelabel" for="searchProduct" style="margin-right: 1em;">Enter product name: </label>
+          <input type='text' name='product_name' id="searchProduct">
         <input class="btn btn-light" type='submit' value='go'>
       </div>
     </form>
@@ -63,6 +65,9 @@
       <div class="custom-file mb-3" style="width: 75%; margin-top: 2em;">
           <input type="file" class="custom-file-input" name="file" id="uploadFile">
           <label class="custom-file-label filelabel" for="uploadFile">Choose file...</label>
+
+        <label class="filelabel" for="productName" style="margin-right: 1em;">Enter product name: </label>
+        <input type='text' name='product_name' id="productName" style="margin-top: 2em;">
         <input type='submit' class="btn btn-primary submit-btn" value='upload'>
       </div>
     </form>
