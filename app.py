@@ -65,9 +65,9 @@ def get_data():
         for response in responses:
             temp_prod = Product(response.product_name, response.file_name)
             temp_prod.facts['Calories'] = response.calories
-            temp_prod.facts['fat'] = response.fat
-            temp_prod.facts['carbohydrates'] = response.carbohydrates
-            temp_prod.facts['protein'] = response.protein
+            temp_prod.facts['Fat'] = response.fat
+            temp_prod.facts['Carbohydrates'] = response.carbohydrates
+            temp_prod.facts['Protein'] = response.protein
 
             products.append(temp_prod)
 
