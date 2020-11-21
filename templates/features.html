@@ -17,7 +17,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-
     <style>
       .bd-placeholder-img {
         font-size: 1.125rem;
@@ -43,38 +42,19 @@
     <div class="inner">
       <h3 class="masthead-brand">Nutri-Fact</h3>
       <nav class="nav nav-masthead justify-content-center">
-        <a class="nav-link active" href="#">Home</a>
-        <a class="nav-link" href="/features">Features</a>
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link active" href="">Features</a>
         <a class="nav-link" href="/contact">Contact</a>
       </nav>
     </div>
   </header>
 
   <main role="main" class="inner cover">
-    <h1>Search Products</h1>
-    <form action='facts' class="form-inline justify-content-center" method="GET" enctype="multipart/form-data">
-      <div class="form-group mb-2">
-          <input type='text' name='product_name'>
-        <input class="btn btn-light" type='submit' value='go'>
-      </div>
-    </form>
-    <h1>Upload Image</h1>
-    <form action='upload' method="POST" enctype="multipart/form-data">
-      <div class="custom-file mb-3" style="width: 75%; margin-top: 2em;">
-          <input type="file" class="custom-file-input" name="file" id="uploadFile">
-          <label class="custom-file-label filelabel" for="uploadFile">Choose file...</label>
-        <input type='submit' class="btn btn-primary submit-btn" value='upload'>
-      </div>
-    </form>
-
-    <script>
-      // Add the following code if you want the name of the file appear on select
-      $(".custom-file-input").on("change", function() {
-        var fileName = $(this).val().split("\\").pop();
-        $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-      });
-    </script>
-
+    <h1 class="cover-heading">Nutrition Facts</h1>
+    <p class="lead">NutritionFacts is a website developed in Flask that is similar to other calorie-tracking websites such as MyFitnessPal.</p>
+    <p class="lead">
+      <a href="https://github.com/herariom/" target="_blank" class="btn btn-lg btn-secondary">Check it out on Github</a>
+    </p>
   </main>
 
   <footer class="mastfoot mt-auto">
@@ -83,7 +63,5 @@
     </div>
   </footer>
 </div>
-
-
 </body>
 </html>

@@ -11,6 +11,7 @@ from product import Product
 from s3_file import s3_upload_file
 import boto3
 from botocore.client import Config
+from werkzeug.exceptions import RequestEntityTooLarge
 
 import uuid
 
@@ -18,14 +19,20 @@ app = Flask(__name__)
 
 app.debug = False
 
+app.config['MAX_CONTENT_LENGTH'] = config.MAX_CONTENT_LENGTH
+
 BUCKET = os.environ['S3_BUCKET']
 
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__) + "/" + config.UPLOAD_FOLDER)
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
 
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 90
 
 db_handler = database.DatabaseHandler(app)
+
 
 # Determines if a file's extension is allowed
 def allowed_file(filename):
@@ -36,6 +43,16 @@ def allowed_file(filename):
 @app.route("/")
 def start():
     return render_template('index.html')
+
+
+@app.route('/features')
+def features():
+    return render_template('features.html')
+
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
 
 
 @app.route('/facts', methods=['GET', 'POST'])
@@ -53,7 +70,6 @@ def get_data():
             temp_prod.facts['protein'] = response.protein
 
             products.append(temp_prod)
-
 
         result = ""
         for prod in products:
@@ -75,6 +91,7 @@ def get_data():
 
         return render_template('searchlist.html', data=products, resource=url)
     return render_template('error.html', error="Problem finding product")
+
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -140,10 +157,16 @@ def upload_file():
 
                 print("URL: " + url)
 
-                return render_template('results.html', message=facts, imgDirectory=url,
+                return render_template('results.html', message=facts, resource=url,
                                        productName=request.form['product_name'])
             else:
                 return render_template('error.html', error="File already exists")
+
+
+@app.errorhandler(413)
+@app.errorhandler(RequestEntityTooLarge)
+def app_handle_413(e):
+    return 'File Too Large', 413
 
 
 @app.route('/download/<resource>')
@@ -159,6 +182,7 @@ def download_image(resource):
 
     url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': resource}, ExpiresIn=100)
     return redirect(url, code=302)
+
 
 if __name__ == "__main__":
     # Generate session key
