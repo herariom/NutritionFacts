@@ -9,8 +9,9 @@ BINARY_THREHOLD = 180
 
 def get_text(imagepath, preprocess):
 
-    # Set path for Tesseract
-    pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe" #os.environ['TESSDATA_PREFIX']
+    # Set path for Tesseract - Only for debugging
+    # pytesseract.pytesseract.tesseract_cmd = ""
+
 
     # Load image and convert to grayscale
     image = cv2.imread(imagepath)
