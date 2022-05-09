@@ -1,5 +1,5 @@
 import image_recognition
-from nutrition_facts import NutritionFacts
+from nutrition_facts import process_text
 import os
 import database
 import config
@@ -8,7 +8,7 @@ from flask import flash, request, redirect
 from flask import Flask
 from werkzeug.utils import secure_filename
 from product import Product
-from s3_file import s3_upload_file
+from image import s3_upload_file
 import boto3
 from botocore.client import Config
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -83,14 +83,15 @@ def get_data():
         print("BEFORE S3")
 
         s3 = boto3.client('s3',
-                             aws_access_key_id=os.environ['S3_ACCESS_KEY'],
-                             aws_secret_access_key=os.environ['S3_SECRET_KEY'],
-                             config=Config(signature_version='s3v4'),
-                             region_name='us-east-2')
+                          aws_access_key_id=os.environ['S3_ACCESS_KEY'],
+                          aws_secret_access_key=os.environ['S3_SECRET_KEY'],
+                          config=Config(signature_version='s3v4'),
+                          region_name='us-east-2')
 
         print("FILENAME: " + response.file_name)
 
-        url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': response.file_name}, ExpiresIn=100)
+        url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': response.file_name},
+                                        ExpiresIn=100)
 
         print("URL: " + url)
 
@@ -132,16 +133,9 @@ def upload_file():
                     os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
                     return render_template('error.html', error="Unable to process the nutrition facts!")
 
-                n = NutritionFacts()
-
-                product.facts = n.process_text(text)
+                product.facts = process_text(text)
 
                 facts = product.facts
-
-                if facts['Calories'] < 0 or facts['Carbohydrates'] < 0 or facts['Protein'] < 0:
-                    os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
-                    return render_template('error.html', error="Unable to correctly parse image data,"
-                                                               " please upload a higher quality image")
 
                 # Add new image to database
 
@@ -160,8 +154,6 @@ def upload_file():
                 url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': new_name},
                                                 ExpiresIn=100)
 
-                print("URL: " + url)
-
                 return render_template('results.html', message=facts, resource=url,
                                        productName=request.form['product_name'])
             else:
@@ -176,14 +168,11 @@ def app_handle_413(e):
 
 @app.route('/download/<resource>')
 def download_image(resource):
-    """ resource: name of the file to download"""
-
-    print("download_image called")
     s3 = boto3.client('s3',
-                             aws_access_key_id=os.environ['S3_ACCESS_KEY'],
-                             aws_secret_access_key=os.environ['S3_SECRET_KEY'],
-                             config=Config(signature_version='s3v4'),
-                             region_name='us-east-2')
+                      aws_access_key_id=os.environ['S3_ACCESS_KEY'],
+                      aws_secret_access_key=os.environ['S3_SECRET_KEY'],
+                      config=Config(signature_version='s3v4'),
+                      region_name='us-east-2')
 
     url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': resource}, ExpiresIn=100)
     return redirect(url, code=302)
@@ -194,7 +183,3 @@ if __name__ == "__main__":
     app.secret_key = os.urandom(24)
 
     app.run()
-
-
-
-

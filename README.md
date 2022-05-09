@@ -9,18 +9,10 @@ Users can search for products that others have submitted and see the nutrition f
 
 ## Usage
 
-I currently do not have a public server for this project as it is a work-in-progress. You can see usage examples on my [website](https://herariom.github.io)
+See it in action [here](https://nutri-fact.herokuapp.com/)
 
 ## Installation
 
-Note: these instructions are a work in progress. I am currently making it more portable and easier to install
-
-* Clone the project to your PC
-
-* Install the required packages with the command `$ pip install -r requirements.txt`
-
-* Create a database and table using the `database.sql` file in the configuration folder
-
-* Configure the `config.py` file to your environment
-
-* Run `main.py`!
+* Clone the repo
+* Uncomment environment variables in the Dockerfile and fill them in as appropriate
+* Build and run the Docker image

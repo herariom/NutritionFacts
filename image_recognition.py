@@ -4,54 +4,79 @@ import cv2
 import os
 import config
 
+IMAGE_SIZE = 1024
+BINARY_THREHOLD = 180
 
 def get_text(imagepath, preprocess):
 
     # Set path for Tesseract
-    #pytesseract.pytesseract.tesseract_cmd = os.environ['TESSDATA_PREFIX']
+    pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe" #os.environ['TESSDATA_PREFIX']
 
     # Load image and convert to grayscale
     image = cv2.imread(imagepath)
 
-    image = image_resize(image, 2048, 2048)
+    # Scale by the largest factor of the image size
+    if image.shape[0] > image.shape[1]:
+        image = image_resize(image, height=IMAGE_SIZE)
+    else:
+        image = image_resize(image, width=IMAGE_SIZE)
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    if preprocess == "thresh":
-        th, gray = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    elif preprocess == "blur":
-        gray = cv2.medianBlur(gray, 3)
+    ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
 
-    # Write grayscale image to disk
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 18))
 
-    filename = "{}.png".format(os.getpid())
-    path = os.path.join(os.path.dirname(__file__) + "/" + config.UPLOAD_FOLDER)
-    cv2.imwrite(os.path.join(path, filename), gray)
-    
-    # Load the image, get the text, then delete temp image
-    image = Image.open(os.path.join(path, filename))
+    dilation = cv2.dilate(thresh1, rect_kernel, iterations=1)
 
-    text = pytesseract.image_to_string(image)
+    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
+                                           cv2.CHAIN_APPROX_NONE)
 
+    text = ''
 
-    # DEBUGGING #
+    for cnt in contours:
+        x, y, w, h = cv2.boundingRect(cnt)
 
-    #cv2.imshow("Image", image)
-    #cv2.imshow("Output", gray)
+        # Drawing a rectangle on copied image
+        rect = cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+        # Cropping the text block for giving input to OCR
+        cropped = image[y:y + h, x:x + w]
+
+        # Apply OCR on the cropped image
+        text = text + '\n' + pytesseract.image_to_string(cropped)
+
     cv2.waitKey(0)
     return text
 
 
-def image_resize(img, max_width, max_height):
-    height, width = img.shape[:2]
+def image_resize(image, width = None, height = None, inter=cv2.INTER_AREA):
+    # initialize the dimensions of the image to be resized and
+    # grab the image size
+    dim = None
+    (h, w) = image.shape[:2]
 
-    # only shrink if img is bigger than required
-    if max_height < height or max_width < width:
-        # get scaling factor
-        scaling_factor = max_height / float(height)
-        if max_width / float(width) < scaling_factor:
-            scaling_factor = max_width / float(width)
-        # resize image
-        img = cv2.resize(img, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+    # if both the width and height are None, then return the
+    # original image
+    if width is None and height is None:
+        return image
 
-    return img
+    # check to see if the width is None
+    if width is None:
+        # calculate the ratio of the height and construct the
+        # dimensions
+        r = height / float(h)
+        dim = (int(w * r), height)
+
+    # otherwise, the height is None
+    else:
+        # calculate the ratio of the width and construct the
+        # dimensions
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    # resize the image
+    resized = cv2.resize(image, dim, interpolation = inter)
+
+    # return the resized image
+    return resized
