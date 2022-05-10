@@ -63,12 +63,21 @@ def contact():
 @app.route('/facts', methods=['GET', 'POST'])
 def get_data():
     if request.method == 'GET':
-        print("Test")
         product = request.args.get('product_name')
+
+        s3 = boto3.client('s3',
+                          aws_access_key_id=os.environ['S3_ACCESS_KEY'],
+                          aws_secret_access_key=os.environ['S3_SECRET_KEY'],
+                          config=Config(signature_version='s3v4'),
+                          region_name='us-east-2')
+
         responses = db_handler.get_nutrition_db(str(product))
         products = []
         for response in responses:
-            temp_prod = Product(response.product_name, response.file_name)
+            url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': response.file_name},
+                                            ExpiresIn=100)
+
+            temp_prod = Product(response.product_name, response.file_name, url)
             temp_prod.facts['Calories'] = response.calories
             temp_prod.facts['Fat'] = response.fat
             temp_prod.facts['Carbohydrates'] = response.carbohydrates
@@ -80,16 +89,7 @@ def get_data():
         for prod in products:
             result = result + str(prod) + "\n"
 
-        s3 = boto3.client('s3',
-                          aws_access_key_id=os.environ['S3_ACCESS_KEY'],
-                          aws_secret_access_key=os.environ['S3_SECRET_KEY'],
-                          config=Config(signature_version='s3v4'),
-                          region_name='us-east-2')
-
-        url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': response.file_name},
-                                        ExpiresIn=100)
-
-        return render_template('searchlist.html', data=products, resource=url)
+        return render_template('searchlist.html', data=products)
     return render_template('error.html', error="Problem finding product")
 
 

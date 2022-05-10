@@ -1,8 +1,9 @@
 class Product:
 
-    def __init__(self, name: str, img_path: str):
+    def __init__(self, name: str, img_path: str, url: str):
         self.name = name
         self.img_path = img_path
+        self.url = url
         self.facts = {'Calories': 0, 'Fat': 0, 'Carbohydrates': 0, 'Protein': 0}
 
     def __hash__(self) -> int:
