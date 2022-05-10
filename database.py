@@ -16,7 +16,7 @@ class DatabaseHandler:
         self.db.session.flush()
 
     def get_nutrition_db(self, product_name: str):
-        return self.get_models(product_data, product_name)
+        return self.get_models(ProductData, product_name)
 
     def get_models(self, model, db_filter):
         db_query = self.db.session.query(model)
@@ -29,7 +29,7 @@ class DatabaseHandler:
         return db_query.all()
 
 
-class product_data(DatabaseHandler.db.Model):
+class ProductData(DatabaseHandler.db.Model):
     id = DatabaseHandler.db.Column(DatabaseHandler.db.Integer, primary_key=True)
     file_name = DatabaseHandler.db.Column(DatabaseHandler.db.String(300), nullable=False)
     product_name = DatabaseHandler.db.Column(DatabaseHandler.db.String(300), nullable=False)

@@ -80,20 +80,14 @@ def get_data():
         for prod in products:
             result = result + str(prod) + "\n"
 
-        print("BEFORE S3")
-
         s3 = boto3.client('s3',
                           aws_access_key_id=os.environ['S3_ACCESS_KEY'],
                           aws_secret_access_key=os.environ['S3_SECRET_KEY'],
                           config=Config(signature_version='s3v4'),
                           region_name='us-east-2')
 
-        print("FILENAME: " + response.file_name)
-
         url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': response.file_name},
                                         ExpiresIn=100)
-
-        print("URL: " + url)
 
         return render_template('searchlist.html', data=products, resource=url)
     return render_template('error.html', error="Problem finding product")
@@ -138,10 +132,9 @@ def upload_file():
                 facts = product.facts
 
                 # Add new image to database
-
-                n_facts = database.product_data(file_name=product.name, product_name=request.form['product_name'],
-                                                calories=int(facts['Calories']), fat=int(facts['Fat']),
-                                                carbohydrates=int(facts['Carbohydrates']), protein=int(facts['Protein']))
+                n_facts = database.ProductData(file_name=product.name, product_name=request.form['product_name'],
+                                               calories=int(facts['Calories']), fat=int(facts['Fat']),
+                                               carbohydrates=int(facts['Carbohydrates']), protein=int(facts['Protein']))
 
                 db_handler.add_model(n_facts)
 

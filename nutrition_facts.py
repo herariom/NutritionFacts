@@ -22,7 +22,6 @@ def process_text(text):
 def validate_search(regex, text):
     try:
         fact_string = regex.search(text)
-
         if fact_string:
             fact_value = re.search(r'\s+[0-9]+', fact_string.group(0))
 

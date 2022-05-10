@@ -5,13 +5,12 @@ import os
 import config
 
 IMAGE_SIZE = 1024
-BINARY_THREHOLD = 180
+
 
 def get_text(imagepath, preprocess):
 
     # Set path for Tesseract - Only for debugging
     # pytesseract.pytesseract.tesseract_cmd = ""
-
 
     # Load image and convert to grayscale
     image = cv2.imread(imagepath)
@@ -32,14 +31,10 @@ def get_text(imagepath, preprocess):
 
     contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
                                            cv2.CHAIN_APPROX_NONE)
-
     text = ''
 
     for cnt in contours:
         x, y, w, h = cv2.boundingRect(cnt)
-
-        # Drawing a rectangle on copied image
-        rect = cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         # Cropping the text block for giving input to OCR
         cropped = image[y:y + h, x:x + w]
@@ -51,7 +46,7 @@ def get_text(imagepath, preprocess):
     return text
 
 
-def image_resize(image, width = None, height = None, inter=cv2.INTER_AREA):
+def image_resize(image, width=None, height=None, inter=cv2.INTER_AREA):
     # initialize the dimensions of the image to be resized and
     # grab the image size
     dim = None
