@@ -27,7 +27,7 @@ def validate_search(regex, text):
 
             if fact_value:
                 return int(fact_value.group(0))
-            return -1
+        return -1
     except ValueError:
         # Likely bad data
         return -1

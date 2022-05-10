@@ -50,9 +50,9 @@ def start():
     return render_template('index.html')
 
 
-@app.route('/features')
+@app.route('/about')
 def features():
-    return render_template('features.html')
+    return render_template('about.html')
 
 
 @app.route('/contact')
@@ -124,12 +124,14 @@ def upload_file():
                 text = image_recognition.get_text(product.img_path, config.PREPROCESSOR)
 
                 if text is None or text == '':
-                    os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
                     return render_template('error.html', error="Unable to process the nutrition facts!")
 
                 product.facts = process_text(text)
 
                 facts = product.facts
+
+                # Remove file now that it has been uploaded to S3 bucket
+                os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
 
                 # Add new image to database
                 n_facts = database.ProductData(file_name=product.name, product_name=request.form['product_name'],
