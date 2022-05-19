@@ -8,7 +8,7 @@ from flask import flash, request, redirect
 from flask import Flask
 from werkzeug.utils import secure_filename
 from product import Product
-from image import s3_upload_file
+from image import s3_upload_file, generate_url
 import boto3
 from botocore.client import Config
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -77,13 +77,12 @@ def get_data():
             url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': response.file_name},
                                             ExpiresIn=100)
 
-            temp_prod = Product(response.product_name, response.file_name, url)
-            temp_prod.facts['Calories'] = response.calories
-            temp_prod.facts['Fat'] = response.fat
-            temp_prod.facts['Carbohydrates'] = response.carbohydrates
-            temp_prod.facts['Protein'] = response.protein
+            product = Product(response.product_name, response.file_name, {'Calories': response.calories,
+                                                                          'Fat': response.fat,
+                                                                          'Carbohydrates': response.carbohydrates,
+                                                                          'Protein': response.protein}, url)
 
-            products.append(temp_prod)
+            products.append(product)
 
         result = ""
         for prod in products:
@@ -108,6 +107,12 @@ def upload_file():
             filename = secure_filename(file.filename)
 
             if not os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+                s3_client = boto3.client('s3',
+                                         aws_access_key_id=os.environ['S3_ACCESS_KEY'],
+                                         aws_secret_access_key=os.environ['S3_SECRET_KEY'],
+                                         config=Config(signature_version='s3v4'),
+                                         region_name='us-east-2')
+
                 new_name = str(uuid.uuid4()) + filename[(filename.index('.')):]  # Appends file extension to UUID
 
                 # Check for name collisions to ensure unique filename
@@ -116,41 +121,34 @@ def upload_file():
 
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_name))
 
-                # Upload file to S3 bucket
-                s3_upload_file(os.path.join(app.config['UPLOAD_FOLDER'], new_name), BUCKET, new_name)
+                image_text = image_recognition.get_text(os.path.join(app.config['UPLOAD_FOLDER'], new_name),
+                                                        config.PREPROCESSOR)
 
-                product = Product(new_name, os.path.join(app.config['UPLOAD_FOLDER'], new_name))
+                if image_text is None or image_text == '':
+                    return render_template('error.html', error="Unable to process the nutrition facts.")
 
-                text = image_recognition.get_text(product.img_path, config.PREPROCESSOR)
+                # Upload file to S3 bucket and then get URL path to it
+                s3_upload_file(s3_client, os.path.join(app.config['UPLOAD_FOLDER'], new_name), BUCKET, new_name)
 
-                if text is None or text == '':
-                    return render_template('error.html', error="Unable to process the nutrition facts!")
+                url = generate_url(s3_client, new_name, BUCKET, 100)
 
-                product.facts = process_text(text)
-
-                facts = product.facts
-
-                # Remove file now that it has been uploaded to S3 bucket
+                # Remove file now that it has been processed
                 os.remove(os.path.join(os.path.join(app.config['UPLOAD_FOLDER'], new_name)))
 
+                product = Product(request.form['product_name'], new_name,
+                                  process_text(image_text), url)
+
                 # Add new image to database
-                n_facts = database.ProductData(file_name=product.name, product_name=request.form['product_name'],
-                                               calories=int(facts['Calories']), fat=int(facts['Fat']),
-                                               carbohydrates=int(facts['Carbohydrates']), protein=int(facts['Protein']))
+                nutrition_facts = database.ProductData(file_name=product.file_name,
+                                                       product_name=product.product_name,
+                                                       calories=product.facts['Calories'],
+                                                       fat=product.facts['Fat'],
+                                                       carbohydrates=product.facts['Carbohydrates'],
+                                                       protein=product.facts['Protein'])
 
-                db_handler.add_model(n_facts)
+                db_handler.add_model(nutrition_facts)
 
-                s3 = boto3.client('s3',
-                                  aws_access_key_id=os.environ['S3_ACCESS_KEY'],
-                                  aws_secret_access_key=os.environ['S3_SECRET_KEY'],
-                                  config=Config(signature_version='s3v4'),
-                                  region_name='us-east-2')
-
-                url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET, 'Key': new_name},
-                                                ExpiresIn=100)
-
-                return render_template('results.html', message=facts, resource=url,
-                                       productName=request.form['product_name'])
+                return render_template('results.html', product=product)
             else:
                 return render_template('error.html', error="File already exists")
 

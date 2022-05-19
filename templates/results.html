@@ -40,20 +40,20 @@
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
     <main role="main" class="inner cover">
         <div id="results">
-            <h1>Nutrition facts for {{productName}}</h1>
+            <h1>Nutrition facts for {{ product.product_name }}</h1>
             <p id="calories">Calories:</p>
             <p id="fat">Fat:</p>
             <p id="carbohydrates">Carbohydrates:</p>
             <p id="protein">Protein:</p>
             <script>
-                var message = JSON.parse('{{ message | tojson | safe}}');
-                document.getElementById('calories').innerHTML += " " + message.Calories
-                document.getElementById('fat').innerHTML += " " + message.Fat;
-                document.getElementById('carbohydrates').innerHTML += " " + message.Carbohydrates;
-                document.getElementById('protein').innerHTML += " " + message.Protein;
+                var facts = JSON.parse('{{ product.facts | tojson | safe}}');
+                document.getElementById('calories').innerHTML += " " + facts.Calories
+                document.getElementById('fat').innerHTML += " " + facts.Fat;
+                document.getElementById('carbohydrates').innerHTML += " " + facts.Carbohydrates;
+                document.getElementById('protein').innerHTML += " " + facts.Protein;
             </script>
         </div>
-        <img src="{{ resource }}" class="product-image" alt="Test" width="20%" height="auto">
+        <img src="{{ product.url }}" class="product-image" alt="Test" width="20%" height="auto">
       </main>
 </div>
 </body>

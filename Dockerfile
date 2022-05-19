@@ -1,12 +1,13 @@
-FROM python:3.7-stretch
+FROM python:3.10
 
 WORKDIR /python-docker
 
 COPY requirements.txt requirements.txt
 
 RUN apt-get update \
-    && apt-get install build-essential make gcc -y \
-    && apt-get install dpkg-dev libgl1 tesseract-ocr -y \
+    && apt-get install build-essential make gcc cmake -y \
+    && apt-get install dpkg-dev libgl1 tesseract-ocr tesseract-ocr-eng imagemagick -y \
+    && pip install --upgrade pip \
     && pip install -r requirements.txt
 
 COPY . .
@@ -17,5 +18,4 @@ COPY . .
 # ENV S3_BUCKET NULL
 # ENV TESSDATA_PREFIX NULL
 
-
-CMD gunicorn app:app --bind 0.0.0.0:8000
+CMD gunicorn app:app

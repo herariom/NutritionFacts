@@ -10,7 +10,7 @@ IMAGE_SIZE = 1024
 def get_text(imagepath, preprocess):
 
     # Set path for Tesseract - Only for debugging
-    # pytesseract.pytesseract.tesseract_cmd = ""
+    # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 
     # Load image and convert to grayscale
     image = cv2.imread(imagepath)
